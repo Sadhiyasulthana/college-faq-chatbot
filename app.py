@@ -43,5 +43,5 @@ query = st.text_input("Ask a question about college rules:")
 if query:
     response = qa_chain.run(query)
     st.write("### Answer:") 
-  st.write(response)
     st.write(response)
+    
