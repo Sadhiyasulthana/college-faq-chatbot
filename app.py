@@ -1,47 +1,42 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
+from openai import OpenAI
 
-from langchain_text_splitters import CharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_openai import OpenAIEmbeddings
-from langchain_openai import ChatOpenAI
-from langchain.chains import RetrievalQA
+# Load API key
 load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 st.title("🎓 College FAQ Chatbot")
 
-# Load data
+# Load FAQ data
 with open("data/college_faq.txt", "r", encoding="utf-8") as f:
-    text = f.read()
-
-# Split text
-text_splitter = CharacterTextSplitter(
-    separator="\n",
-    chunk_size=500,
-    chunk_overlap=50
-)
-
-docs = text_splitter.split_text(text)
-
-# Create vector store
-embeddings = OpenAIEmbeddings()
-vectorstore = FAISS.from_texts(docs, embeddings)
-
-retriever = vectorstore.as_retriever()
-
-llm = ChatOpenAI(temperature=0)
-
-qa_chain = RetrievalQA.from_chain_type(
-    llm=llm,
-    retriever=retriever,
-    chain_type="stuff"
-)
+    context = f.read()
 
 query = st.text_input("Ask a question about college rules:")
 
 if query:
-    response = qa_chain.run(query)
-    st.write("### Answer:") 
-    st.write(response)
+    prompt = f"""
+You are a helpful college assistant.
+Answer ONLY from the context below.
+If the answer is not in the context, say:
+"I don't know based on the provided information."
+
+Context:
+{context}
+
+Question:
+{query}
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0
+    )
+
+    answer = response.choices[0].message.content
+
+    st.write("### Answer:")
+    st.write(answer)
     
