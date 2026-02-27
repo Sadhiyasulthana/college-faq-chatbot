@@ -1,12 +1,12 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from langchain.text_splitter import characterTextSplitter
-from langchain.vectorstores import FAISS
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import RetrievalQA
 
+from langchain_text_splitters import CharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
+from langchain.chains import RetrievalQA
 load_dotenv()
 
 st.title("🎓 College FAQ Chatbot")
